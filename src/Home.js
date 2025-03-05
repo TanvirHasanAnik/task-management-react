@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 
 export default function Home() {
     const [tasks, setTasks] = useState([
@@ -8,10 +8,16 @@ export default function Home() {
         {id: 4, text: "Task 4"},
         {id: 5, text: "Task 5"},
     ]);
+
+    const removeTask = (id) => {
+        const newTasks = tasks.filter(task => task.id !== id);
+        setTasks(newTasks);
+    }
+
     return (
         <>
         <Heading title="Task Management"/>
-        <TaskList tasks={tasks}/>
+        <TaskList tasks={tasks} removeTask={removeTask}/>
         <InputField setTasks = {setTasks} tasks = {tasks}/>
         </>
     );
@@ -23,16 +29,24 @@ function Heading({title}) {
     );
 }
 
-function Task({id, text}){
+function Task({task, removeTask}){
     return (
-        <li>{text}</li>
+        <li>{task.text} <RemoveTask id={task.id} onRemoveTask={removeTask}/></li>
     );
 }
 
-function TaskList({tasks}) {
+function RemoveTask({id,onRemoveTask}){
+    return (
+        <button onClick={() => {
+            onRemoveTask(id);
+        }}>X</button>
+    );
+}
+
+function TaskList({tasks, removeTask}) {
     return (
         <ul>
-            {tasks.map(task => <Task key={task.id} text={task.text}/>)}
+            {tasks.map(task => <Task task = {task} removeTask={removeTask}/>)}
         </ul>
     )
 }
