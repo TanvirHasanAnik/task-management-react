@@ -16,11 +16,21 @@ export default function Home() {
         (() => toast.error("Task: " +taskName+ " has been removed successfully!"))();
     }
 
+    const editTask = (id, newText) => {
+        const newTasks = tasks.map(task => 
+            task.id === id ? { ...task, text: newText } : task
+        );
+        setTasks(newTasks);
+        (() => toast.info("Task: " + newText + " has been updated successfully!"))();
+    };
+
+    
+
     return (
         <>
         <ToastContainer />
         <Heading title="Task Management"/>
-        <TaskList tasks={tasks} removeTask={removeTask}/>
+        <TaskList tasks={tasks} removeTask={removeTask} editTask={editTask}/>
         <InputField setTasks = {setTasks} tasks = {tasks}/>
         </>
     );
@@ -32,32 +42,31 @@ function Heading({title}) {
     );
 }
 
-function Task({task, removeTask}){
+function Task({task, removeTask, editTask}) {
+    const handleBlur = (e) => {
+        const newText = e.target.innerText;
+        editTask(task.id, newText);
+    };
     return (
-        <li>{task.text} <EditTask/> <RemoveTask id={task.id} onRemoveTask={removeTask}/></li>
+        <li className='task' key={task.id}>
+            <span contentEditable="true" onBlur={handleBlur}>{task.text}</span>
+            <RemoveTask id={task.id} onRemoveTask={removeTask} />
+        </li>
     );
 }
 
 function RemoveTask({id,onRemoveTask}){
     return (
-        <button onClick={() => {
+        <button className = "button--delete" onClick={() => {
             onRemoveTask(id);
         }}>X</button>
     );
 }
 
-function EditTask({id,onEditTask}){
-    return (
-        <button onClick={() => {
-            onEditTask(id);
-        }}>Edit</button>
-    );
-}
-
-function TaskList({tasks, removeTask}) {
+function TaskList({tasks, removeTask, editTask}) {
     return (
         <ul>
-            {tasks.map(task => <Task task = {task} removeTask={removeTask}/>)}
+            {tasks.map(task => <Task task = {task} removeTask={removeTask} editTask = {editTask}/>)}
         </ul>
     )
 }
@@ -73,7 +82,6 @@ function InputField({setTasks, tasks}) {
     }
 
     return (
-        <>
         <form onSubmit={addTask}>
             <input 
             type="text" 
@@ -81,8 +89,7 @@ function InputField({setTasks, tasks}) {
             value={task}
             onChange={e => setTask(e.target.value)}
             />
-            <button type="submit">Add</button>
+            <button className = "button-add" type="submit">Add</button>
         </form>
-        </>
     );
 }

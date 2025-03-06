@@ -47,3 +47,53 @@ body, html {
   align-items: center; /* Vertically center */
   background-color: #f5f5f5; /* Optional background */
 }
+
+ul {
+  padding: 0; /* Remove default padding */
+  margin: 0;  /* Remove default margin */
+  list-style-type: none; /* Remove list bullet points */
+  width: 100%;
+  max-width: 500px; /* Ensure the list doesn't stretch too far */
+  margin: 0 auto; /* Center the list */
+}
+
+.task {
+  width: 100%;
+  max-width: 500px;
+  padding: 10px;
+  margin: 10px auto;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.task span {
+  flex-grow: 1; /* Makes the text take available space */
+  text-align: left; /* Ensures text aligns to the left */
+}
+
+button {
+  margin-left: 10px; /* Adds space between buttons */
+  padding: 5px 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.button--delete {
+  background-color: red;
+}
+
+.button--add {
+  background-color: blue;
+}
+
+.button--edit {
+  background-color: green;
+}
