@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-
+import { ToastContainer, toast } from 'react-toastify';
 export default function Home() {
     const [tasks, setTasks] = useState([
         {id: 1, text: "Task 1"},
@@ -11,11 +11,14 @@ export default function Home() {
 
     const removeTask = (id) => {
         const newTasks = tasks.filter(task => task.id !== id);
+        const taskName = tasks.find(task => task.id === id).text;
         setTasks(newTasks);
+        (() => toast.error("Task: " +taskName+ " has been removed successfully!"))();
     }
 
     return (
         <>
+        <ToastContainer />
         <Heading title="Task Management"/>
         <TaskList tasks={tasks} removeTask={removeTask}/>
         <InputField setTasks = {setTasks} tasks = {tasks}/>
@@ -31,7 +34,7 @@ function Heading({title}) {
 
 function Task({task, removeTask}){
     return (
-        <li>{task.text} <RemoveTask id={task.id} onRemoveTask={removeTask}/></li>
+        <li>{task.text} <EditTask/> <RemoveTask id={task.id} onRemoveTask={removeTask}/></li>
     );
 }
 
@@ -40,6 +43,14 @@ function RemoveTask({id,onRemoveTask}){
         <button onClick={() => {
             onRemoveTask(id);
         }}>X</button>
+    );
+}
+
+function EditTask({id,onEditTask}){
+    return (
+        <button onClick={() => {
+            onEditTask(id);
+        }}>Edit</button>
     );
 }
 
@@ -53,12 +64,12 @@ function TaskList({tasks, removeTask}) {
 
 function InputField({setTasks, tasks}) {
     const [task, setTask] = useState("");
-
     const addTask = (event) => {
         event.preventDefault();
         const newTasks = [...tasks, { id: Date.now(), text: task }];
         setTasks(newTasks);
         setTask("");
+        (() => toast.success("Task: "+task+" added successfully!"))();
     }
 
     return (
