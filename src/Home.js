@@ -1,13 +1,8 @@
-import React, { useState } from 'react';
+import React, { useReducer, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
+
 export default function Home() {
-    const [tasks, setTasks] = useState([
-        {id: 1, text: "Task 1"},
-        {id: 2, text: "Task 2"},
-        {id: 3, text: "Task 3"},
-        {id: 4, text: "Task 4"},
-        {id: 5, text: "Task 5"},
-    ]);
+    const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
 
     const removeTask = (id) => {
         const newTasks = tasks.filter(task => task.id !== id);
@@ -96,3 +91,15 @@ function InputField({setTasks, tasks}) {
         </form>
     );
 }
+
+function tasksReducer(tasks, action){
+
+}
+
+const initialTasks = [
+    {id: 1, text: "Task 1"},
+    {id: 2, text: "Task 2"},
+    {id: 3, text: "Task 3"},
+    {id: 4, text: "Task 4"},
+    {id: 5, text: "Task 5"},
+];
