@@ -17,11 +17,14 @@ export default function Home() {
     }
 
     const editTask = (id, newText) => {
-        const newTasks = tasks.map(task => 
-            task.id === id ? { ...task, text: newText } : task
-        );
-        setTasks(newTasks);
-        (() => toast.info("Task: " + newText + " has been updated successfully!"))();
+        const targetTask = tasks.find(task => task.id === id);
+        if(targetTask.text !== newText) {
+            const newTasks = tasks.map(task => 
+                task.id === id ? { ...task, text: newText } : task
+            );
+            setTasks(newTasks);
+            (() => toast.info("Task: " + newText + " has been updated successfully!"))();
+        }
     };
 
     
