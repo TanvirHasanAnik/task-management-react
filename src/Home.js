@@ -1,35 +1,41 @@
-import React, { useReducer, useState } from 'react';
+import React, { useReducer } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 
 export default function Home() {
     const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
 
-    const removeTask = (id) => {
-        const newTasks = tasks.filter(task => task.id !== id);
-        const taskName = tasks.find(task => task.id === id).text;
-        setTasks(newTasks);
-        (() => toast.error("Task: " +taskName+ " has been removed successfully!"))();
+    function handleAddTask(text){
+        dispatch({
+            type: "add",
+            id: Date.now(),
+            text: text,
+        });
+        toast.success("Task: " + text + " has been added");
     }
 
-    const editTask = (id, newText) => {
-        const targetTask = tasks.find(task => task.id === id);
-        if(targetTask.text !== newText) {
-            const newTasks = tasks.map(task => 
-                task.id === id ? { ...task, text: newText } : task
-            );
-            setTasks(newTasks);
-            (() => toast.info("Task: " + newText + " has been updated successfully!"))();
-        }
-    };
+    function handleRemoveTask (taskId) {
+        dispatch({
+            type: "remove",
+            id: taskId,
+        });
+        toast.error("Task: " +tasks.find(task => task.id === taskId).text+ " has been removed successfully!");
+    }
 
-    
+    function handleEditTask(taskId, newText){
+        dispatch({
+            type: "edit",
+            id: taskId,
+            text:newText,
+        });
+        toast.info("Task: " + newText + " has been updated successfully!");
+    }
 
     return (
         <>
         <ToastContainer />
         <Heading title="Task Management"/>
-        <TaskList tasks={tasks} removeTask={removeTask} editTask={editTask}/>
-        <InputField setTasks = {setTasks} tasks = {tasks}/>
+        <TaskList tasks={tasks} removeTask={handleRemoveTask} editTask={handleEditTask}/>
+        <InputField addTask = {handleAddTask}/>
         </>
     );
 }
@@ -41,13 +47,9 @@ function Heading({title}) {
 }
 
 function Task({task, removeTask, editTask}) {
-    const handleBlur = (e) => {
-        const newText = e.target.innerText;
-        editTask(task.id, newText);
-    };
     return (
         <li className='task' key={task.id}>
-            <span contentEditable="true" onBlur={handleBlur}>{task.text}</span>
+            <span contentEditable="true" onBlur={(e) => {task.text !== e.target.innerText && editTask(task.id, e.target.innerText)}}>{task.text}</span>
             <RemoveTask id={task.id} onRemoveTask={removeTask} />
         </li>
     );
@@ -69,23 +71,17 @@ function TaskList({tasks, removeTask, editTask}) {
     )
 }
 
-function InputField({setTasks, tasks}) {
-    const [task, setTask] = useState("");
-    const addTask = (event) => {
-        event.preventDefault();
-        const newTasks = [...tasks, { id: Date.now(), text: task }];
-        setTasks(newTasks);
-        setTask("");
-        (() => toast.success("Task: "+task+" added successfully!"))();
-    }
-
+function InputField({addTask}) {
     return (
-        <form onSubmit={addTask}>
+        <form onSubmit={(e) => {
+            e.preventDefault();
+            const value = e.target.addText.value;
+            value && addTask(value);
+            e.target.addText.value = "";
+            }}>
             <input 
             type="text" 
             name="addText"
-            value={task}
-            onChange={e => setTask(e.target.value)}
             />
             <button className = "button-add" type="submit">Add</button>
         </form>
@@ -93,8 +89,38 @@ function InputField({setTasks, tasks}) {
 }
 
 function tasksReducer(tasks, action){
+    switch (action.type) {
+        case 'add': {
+            return [...tasks,
+                {
+                    id: action.id,
+                    text: action.text
+                }
+            ];
+        }
 
-}
+        case 'edit': {
+            const targetTask = tasks.find(task => task.id === action.id);
+            if(targetTask.text !== action.text) {
+                const newTasks = tasks.map(task => 
+                    task.id === action.id ? { ...task, text: action.text } : task
+                );
+                return newTasks;
+            }else {
+                return tasks;
+            }
+        }
+
+        case 'remove': {
+                return tasks.filter(task => task.id !== action.id);
+        }
+
+        default: {
+            throw Error('Unknown action: '+ action.type);
+        }
+    }
+};
+
 
 const initialTasks = [
     {id: 1, text: "Task 1"},
