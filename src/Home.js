@@ -1,5 +1,7 @@
-import React, { useReducer } from 'react';
+import React, { useReducer, createContext, useContext } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
+
+const TaskContext = createContext();
 
 export default function Home() {
     const [tasks, dispatch] = useReducer(tasksReducer, initialTasks);
@@ -31,12 +33,12 @@ export default function Home() {
     }
 
     return (
-        <>
-        <ToastContainer />
-        <Heading title="Task Management"/>
-        <TaskList tasks={tasks} removeTask={handleRemoveTask} editTask={handleEditTask}/>
-        <InputField addTask = {handleAddTask}/>
-        </>
+        <TaskContext.Provider value={{tasks, handleAddTask, handleRemoveTask, handleEditTask}}>
+            <ToastContainer />
+            <Heading title="Task Management"/>
+            <TaskList />
+            <InputField />
+        </TaskContext.Provider>
     );
 }
 
@@ -46,37 +48,41 @@ function Heading({title}) {
     );
 }
 
-function Task({task, removeTask, editTask}) {
-    return (
-        <li className='task' key={task.id}>
-            <span contentEditable="true" onBlur={(e) => {task.text !== e.target.innerText && editTask(task.id, e.target.innerText)}}>{task.text}</span>
-            <RemoveTask id={task.id} onRemoveTask={removeTask} />
-        </li>
-    );
-}
-
-function RemoveTask({id,onRemoveTask}){
-    return (
-        <button className = "button--delete" onClick={() => {
-            onRemoveTask(id);
-        }}>X</button>
-    );
-}
-
-function TaskList({tasks, removeTask, editTask}) {
+function TaskList() {
+    const {tasks} = useContext(TaskContext);
     return (
         <ul>
-            {tasks.map(task => <Task task = {task} removeTask={removeTask} editTask = {editTask}/>)}
+            {tasks.map(task => <Task task = {task}/>)}
         </ul>
     )
 }
 
-function InputField({addTask}) {
+function Task({task}) {
+    const {handleEditTask} = useContext(TaskContext);
+    return (
+        <li className='task' key={task.id}>
+            <span contentEditable="true" onBlur={(e) => {task.text !== e.target.innerText && handleEditTask(task.id, e.target.innerText)}}>{task.text}</span>
+            <RemoveTask id={task.id} />
+        </li>
+    );
+}
+
+function RemoveTask({id}){
+    const {handleRemoveTask} = useContext(TaskContext);
+    return (
+        <button className = "button--delete" onClick={() => {
+            handleRemoveTask(id);
+        }}>X</button>
+    );
+}
+
+function InputField() {
+    const {handleAddTask} = useContext(TaskContext);
     return (
         <form onSubmit={(e) => {
             e.preventDefault();
             const value = e.target.addText.value;
-            value && addTask(value);
+            value && handleAddTask(value);
             e.target.addText.value = "";
             }}>
             <input 
